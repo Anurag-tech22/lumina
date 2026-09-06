@@ -54,7 +54,7 @@ graph TD
         GenAI[Google Gen AI SDK]
     end
     
-    subgraph Google Cloud & Firebase
+    subgraph GoogleCloud [Google Cloud & Firebase]
         Firestore[(Firestore DB)]
         Identity[Firebase Auth]
         Gemini[Gemini API]
@@ -74,7 +74,7 @@ graph TD
     
     style Client fill:#1e293b,stroke:#3b82f6,color:#fff
     style Backend fill:#1e293b,stroke:#10b981,color:#fff
-    style Google Cloud & Firebase fill:#1e293b,stroke:#f59e0b,color:#fff
+    style GoogleCloud fill:#1e293b,stroke:#f59e0b,color:#fff
 ```
 
 ### AI Message Processing Flow
