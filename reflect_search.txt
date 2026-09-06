@@ -1,0 +1,26 @@
+./fix_html.py:6:content = re.sub(r'<title>.*?</title>', '<title>Reflect</title>', content)
+./fix_html.py:8:content = re.sub(r'<meta property="og:title" content=".*?" />', '<meta property="og:title" content="Reflect" />', content)
+./metadata.json:2:  "name": "Reflect",
+./src/pages/Login.tsx:22:          <span className="text-xl font-medium tracking-tight text-slate-800">Reflect</span>
+./src/pages/Dashboard.tsx.patch:72:       showError(error.message || "I encountered an error reflecting on that. Please try again.");
+./src/pages/Dashboard.tsx.patch:224:                     Start typing or use your voice to reflect.
+./src/pages/Dashboard.tsx:661:      showError(error.message || "I encountered an error reflecting on that. Please try again.");
+./src/pages/Dashboard.tsx:756:            <h1 className="font-medium text-[16px] text-slate-900 tracking-tight">Reflect</h1>
+./src/pages/Dashboard.tsx:779:            <div className="text-[12px] text-slate-400 px-2 italic">No past reflections.</div>
+./src/pages/Dashboard.tsx:877:                  const mdContent = `# ${sessionTitle}\n\n` + messages.map(m => `**${m.role === 'user' ? 'You' : 'Reflect'}**:\n${m.text}`).join('\n\n---\n\n');
+./src/pages/Dashboard.tsx:983:                        Start a new reflection. Your thoughts will be safely isolated and preserved in your personal vault.
+./src/pages/Dashboard.tsx:990:                      "Reflect on my day...",
+./src/pages/Dashboard.tsx:1163:                placeholder={interactionMode === 'prism' ? "Activate Omni-Cognitive Synthesis..." : (interactionMode === 'research' ? "Enter a topic for deep research..." : "Ask Reflect...")}
+./src/components/CommandPalette.tsx:66:                  placeholder="Search reflections, or type a command..." 
+./README.md:1:# Reflect Studio
+./README.md:3:Reflect Studio is a production-grade, authenticated AI journaling application built with React, Vite, Express, and Firebase. It features real-time conversational reflections using the Gemini 2.5 Flash model, fully isolated user data via Firestore, and secure, server-side credential management.
+./README.md:81:gcloud run deploy reflect-studio \
+./README.md:94:gcloud run services update reflect-studio \
+./update_metadata.py:6:metadata['name'] = "Reflect"
+./fix_name.py:6:content = content.replace('Gemini Clone', 'Reflect')
+./server.ts:349:    const prompt = `Analyze the following reflection session and extract deep insights. 
+./update_icon_dash.py:18:            <h1 className="font-medium text-[16px] text-slate-900 tracking-tight">Reflect</h1>"""
+./fix_dashboard_name.py:6:content = content.replace('"Ask Gemini..."', '"Ask Reflect..."')
+./fix_dashboard_name.py:7:content = content.replace("'Gemini'", "'Reflect'")
+./index.html:6:    <title>Reflect</title>
+./index.html:8:    <meta property="og:title" content="Reflect" />

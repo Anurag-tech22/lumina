@@ -1,0 +1,10 @@
+{
+  "name": "Lumina",
+  "description": "A production-grade, authenticated AI workspace built with React, Vite, Express, and Firebase. Features Omni-Cognitive Synthesis and Deep Research capabilities.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,451 @@
+--- src/pages/Dashboard.tsx
++++ src/pages/Dashboard.tsx
+@@ -5,7 +5,7 @@
+ import { collection, doc, query, orderBy, onSnapshot, setDoc, addDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+ import { Message, Session } from '../types';
+ import { motion, AnimatePresence } from 'motion/react';
+-import { Send, LogOut, Plus, MessageSquare, Loader2, Menu, X, Lightbulb, AlertCircle, Maximize2, Minimize2, Copy, Mic, MicOff, Volume2, Wind, MoreVertical, Trash2, Square } from 'lucide-react';
++import { Send, LogOut, Plus, MessageSquare, Loader2, Menu, X, Lightbulb, AlertCircle, Maximize2, Minimize2, Copy, Mic, MicOff, Volume2, Wind, MoreVertical, Trash2, Square, ImagePlus, StopCircle } from 'lucide-react';
+ import ReactMarkdown from 'react-markdown';
+ import { cn } from '../lib/utils';
+ import { format } from 'date-fns';
+@@ -29,6 +29,8 @@
+   const [isGenerating, setIsGenerating] = useState(false);
+   const [isGeneratingInsight, setIsGeneratingInsight] = useState(false);
+   const [input, setInput] = useState('');
++  const [attachedImage, setAttachedImage] = useState<{ url: string; base64: string; mimeType: string } | null>(null);
++  const abortControllerRef = useRef<AbortController | null>(null);
+   const messagesEndRef = useRef<HTMLDivElement>(null);
+   const textareaRef = useRef<HTMLTextAreaElement>(null);
+   
+@@ -330,8 +332,15 @@
+     if (window.innerWidth < 768) setSidebarOpen(false);
+   };
+ 
++  const stopGeneration = () => {
++    if (abortControllerRef.current) {
++      abortControllerRef.current.abort();
++      abortControllerRef.current = null;
++    }
++  };
++
+   const handleSend = async (e?: React.FormEvent) => {
+     e?.preventDefault();
+-    if (!input.trim() || !user || isGenerating) return;
++    if ((!input.trim() && !attachedImage) || !user || isGenerating) return;
+ 
+     const currentInput = input.trim();
++    const currentImage = attachedImage;
+     setInput('');
++    setAttachedImage(null);
+     if (textareaRef.current) textareaRef.current.style.height = 'auto';
+@@ -367,9 +376,14 @@
+       const messagesRef = collection(db, `users/${user.uid}/sessions/${currentSessionId}/messages`);
+       const userMsgRef = doc(messagesRef);
+       await setDoc(userMsgRef, cleanPayload({
+         role: 'user',
+         text: currentInput,
++        images: currentImage ? [{
++          base64: currentImage.base64,
++          mimeType: currentImage.mimeType
++        }] : undefined,
+         createdAt: Date.now(),
+       }));
+ 
+       setIsGenerating(true);
++      abortControllerRef.current = new AbortController();
+ 
+       // Prepare history for API (last 10 messages for context window optimization)
+-      const recentMessages = [...messages.slice(-9), { role: 'user', text: currentInput }].map(m => ({ role: m.role, text: m.text }));
++      const recentMessages = [...messages.slice(-9), { role: 'user', text: currentInput, images: currentImage ? [{ base64: currentImage.base64, mimeType: currentImage.mimeType }] : undefined }];
+ 
+       const response = await fetch('/api/chat', {
+         method: 'POST',
++        signal: abortControllerRef.current.signal,
+         headers: { 
+@@ -441,6 +455,8 @@
+       }));
+ 
+     } catch (error: any) {
++      if (error.name === 'AbortError') return; // Ignore intentional aborts
+       console.error("Error calling Gemini API", error);
+       showError(error.message || "I encountered an error reflecting on that. Please try again.");
+       
+@@ -453,6 +469,7 @@
+       }
+     } finally {
+       setIsGenerating(false);
++      abortControllerRef.current = null;
+     }
+   };
+ 
+@@ -491,5 +508,5 @@
+ 
+   return (
+-    <div className="flex h-screen bg-[#090d16] text-gray-200 overflow-hidden font-sans selection:bg-indigo-500/30">
++    <div className="flex h-screen bg-[#131314] text-[#e3e3e3] overflow-hidden font-sans selection:bg-[#a8c7fa]/30">
+       
+       {/* Toast Notification */}
+@@ -527,6 +544,6 @@
+         animate={{ x: sidebarOpen ? 0 : -300 }}
+         transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
+         className={cn(
+-          "fixed md:static inset-y-0 left-0 z-50 w-72 bg-[#0d1322] border-r border-[#1f293d] flex flex-col transition-all duration-300",
++          "fixed md:static inset-y-0 left-0 z-50 w-72 bg-[#1e1f20] border-r border-transparent flex flex-col transition-all duration-300",
+           !focusMode ? "md:translate-x-0 md:flex" : "md:hidden" 
+         )}
+@@ -531,10 +548,10 @@
+         )}
+       >
+-        <div className="p-4 border-b border-[#1f293d] flex items-center justify-between">
++        <div className="p-4 flex items-center justify-between">
+           <div className="flex items-center gap-3">
+             {user?.photoURL ? (
+-              <img src={user.photoURL} alt="Profile" className="w-8 h-8 rounded-full border border-[#1f293d]" />
++              <img src={user.photoURL} alt="Profile" className="w-8 h-8 rounded-full" />
+             ) : (
+-              <div className="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-medium">
++              <div className="w-8 h-8 rounded-full bg-[#a8c7fa]/20 flex items-center justify-center text-[#a8c7fa] font-medium">
+                 {user?.displayName?.charAt(0) || user?.email?.charAt(0) || 'U'}
+@@ -550,6 +567,6 @@
+           <button
+             onClick={handleNewSession}
+-            className="w-full flex items-center gap-2 bg-[#111827] hover:bg-[#1a2333] border border-[#1f293d] text-white rounded-lg px-4 py-2.5 transition-colors text-sm font-medium"
++            className="w-full flex items-center gap-2 bg-[#131314] hover:bg-[#282a2c] text-[#e3e3e3] rounded-full px-4 py-2.5 transition-colors text-sm font-medium shadow-sm border border-[#444746]"
+           >
+             <Plus className="w-4 h-4" />
+@@ -574,8 +591,8 @@
+                   className={cn(
+-                    "w-full text-left flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors",
++                    "w-full text-left flex items-center justify-between gap-3 px-4 py-2.5 rounded-full text-sm transition-colors",
+                     activeSessionId === session.id 
+-                      ? "bg-indigo-500/10 text-indigo-300 border border-indigo-500/20" 
+-                      : "text-gray-400 hover:bg-[#111827] hover:text-gray-200 border border-transparent"
++                      ? "bg-[#282a2c] text-[#e3e3e3]" 
++                      : "text-[#c4c7c5] hover:bg-[#282a2c] hover:text-[#e3e3e3]"
+                   )}
+                 >
+@@ -578,5 +595,5 @@
+                 >
+                   <div className="flex items-center gap-3 overflow-hidden">
+-                    <MessageSquare className={cn("w-4 h-4 shrink-0", activeSessionId === session.id ? "text-indigo-400" : "text-gray-500 group-hover:text-gray-400")} />
++                    <MessageSquare className={cn("w-4 h-4 shrink-0", activeSessionId === session.id ? "text-[#e3e3e3]" : "text-[#c4c7c5]")} />
+                     <div className="truncate">
+@@ -590,6 +607,6 @@
+                   onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === session.id ? null : session.id); }}
+                   className={cn(
+-                    "absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-white transition-opacity rounded-md hover:bg-[#1f293d]",
+-                    openMenuId === session.id ? "opacity-100 bg-[#1f293d]" : "opacity-0 group-hover:opacity-100"
++                    "absolute right-2 top-1/2 -translate-y-1/2 p-1 text-[#c4c7c5] hover:text-[#e3e3e3] transition-opacity rounded-full hover:bg-[#444746]",
++                    openMenuId === session.id ? "opacity-100 bg-[#444746]" : "opacity-0 group-hover:opacity-100"
+                   )}
+@@ -602,6 +619,6 @@
+                     initial={{ opacity: 0, scale: 0.95 }}
+                     animate={{ opacity: 1, scale: 1 }}
+                     exit={{ opacity: 0, scale: 0.95 }}
+-                    className="absolute right-0 top-10 w-32 bg-[#1a2333] border border-[#1f293d] rounded-lg shadow-xl z-10 overflow-hidden"
++                    className="absolute right-0 top-10 w-32 bg-[#282a2c] border border-[#444746] rounded-xl shadow-xl z-10 overflow-hidden"
+                   >
+@@ -606,6 +623,6 @@
+                   >
+                     <button
+                       onClick={(e) => handleDeleteSession(e, session.id)}
+-                      className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-2"
++                      className="w-full text-left px-3 py-2.5 text-sm text-[#f28b82] hover:bg-[#f28b82]/10 flex items-center gap-2"
+                     >
+@@ -628,6 +645,6 @@
+         <div className="p-4 border-t border-[#1f293d]">
+           <button
+             onClick={logOut}
+-            className="w-full flex items-center gap-2 text-gray-400 hover:text-white px-3 py-2 rounded-lg hover:bg-[#111827] transition-colors text-sm"
++            className="w-full flex items-center gap-2 text-[#c4c7c5] hover:text-[#e3e3e3] px-3 py-2 rounded-full hover:bg-[#282a2c] transition-colors text-sm"
+           >
+@@ -639,5 +656,5 @@
+ 
+       {/* Main Chat Area */}
+-      <main className="flex-1 flex flex-col min-w-0 bg-[#090d16] relative transition-all duration-500">
++      <main className="flex-1 flex flex-col min-w-0 bg-[#131314] relative transition-all duration-500">
+         {/* Header */}
+@@ -642,5 +659,5 @@
+         {/* Header */}
+-        <header className="h-14 shrink-0 border-b border-[#1f293d] flex items-center justify-between px-4 sticky top-0 bg-[#090d16]/80 backdrop-blur-md z-30">
++        <header className="h-16 shrink-0 flex items-center justify-between px-4 sticky top-0 bg-[#131314]/90 backdrop-blur-md z-30">
+           <div className="flex items-center gap-3">
+@@ -645,6 +662,6 @@
+           <div className="flex items-center gap-3">
+             <button onClick={() => setSidebarOpen(true)} className="md:hidden p-1 -ml-1 text-gray-400 hover:text-white">
+               <Menu className="w-5 h-5" />
+             </button>
+-            <div className="flex items-center gap-2 text-indigo-400 font-semibold tracking-wide">
+-              <Wind className="w-5 h-5" />
++            <div className="flex items-center gap-2 text-[#e3e3e3] font-semibold text-lg tracking-tight">
++              <SparklesIcon className="w-6 h-6 text-[#a8c7fa]" />
+               AI Studio
+@@ -654,7 +671,7 @@
+             {activeSessionId && (
+               <>
+                 <button
+                   onClick={() => setHideInsights(false)}
+-                  className="p-2 text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-colors md:hidden"
++                  className="p-2 text-[#a8c7fa] hover:bg-[#a8c7fa]/10 rounded-full transition-colors md:hidden"
+                 >
+                   <Lightbulb className="w-4 h-4" />
+@@ -660,7 +677,7 @@
+                 >
+                   <Lightbulb className="w-4 h-4" />
+                 </button>
+                 <button
+                   onClick={() => setFocusMode(!focusMode)}
+-                  className="p-2 text-gray-400 hover:text-white hover:bg-[#1f293d] rounded-lg transition-colors hidden md:flex"
++                  className="p-2 text-[#c4c7c5] hover:text-[#e3e3e3] hover:bg-[#282a2c] rounded-full transition-colors hidden md:flex"
+                   title={focusMode ? "Exit Focus Mode" : "Enter Focus Mode"}
+                 >
+@@ -671,7 +688,7 @@
+                 <button
+                   onClick={generateInsights}
+                   disabled={isGeneratingInsight || messages.length < 2}
+-                  className="hidden md:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 border border-indigo-500/20 rounded-lg transition-colors disabled:opacity-50"
++                  className="hidden md:flex items-center gap-1.5 px-4 py-1.5 text-sm font-medium bg-[#a8c7fa]/10 text-[#a8c7fa] hover:bg-[#a8c7fa]/20 rounded-full transition-colors disabled:opacity-50"
+                 >
+                   {isGeneratingInsight ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Lightbulb className="w-3.5 h-3.5" />}
+                   Generate Insights
+@@ -737,7 +754,7 @@
+               {messages.length === 0 ? (
+                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-full flex flex-col items-center justify-center text-center px-4">
+-                  <div className="w-16 h-16 bg-[#0d1322] border border-[#1f293d] rounded-2xl flex items-center justify-center mb-6 shadow-2xl shadow-indigo-500/10 rotate-3">
+-                    <SparklesIcon className="w-8 h-8 text-indigo-400" />
++                  <div className="w-16 h-16 bg-[#1e1f20] rounded-full flex items-center justify-center mb-6">
++                    <SparklesIcon className="w-8 h-8 text-[#a8c7fa]" />
+                   </div>
+-                  <h2 className="text-2xl font-bold text-white mb-2">How can I help you today?</h2>
+-                  <p className="text-gray-400 max-w-md mx-auto text-sm">
++                  <h2 className="text-3xl font-medium text-[#e3e3e3] mb-2 tracking-tight">How can I help you today?</h2>
++                  <p className="text-[#c4c7c5] max-w-md mx-auto text-sm">
+                     Start typing or use your voice to reflect.
+@@ -750,9 +767,9 @@
+                 messages.map((msg, index) => (
+                   <motion.div
+                     initial={{ opacity: 0, y: 10 }}
+                     animate={{ opacity: 1, y: 0 }}
+                     key={msg.id}
+                     className={cn(
+                       "flex gap-4 max-w-3xl mx-auto group",
+-                      msg.role === 'user' ? "flex-row-reverse" : ""
++                      msg.role === 'user' ? "justify-end" : "justify-start"
+                     )}
+                   >
+@@ -757,21 +774,27 @@
+                     )}
+                   >
+                     {/* Avatar */}
+-                    <div className={cn(
+-                      "w-8 h-8 rounded-lg flex shrink-0 items-center justify-center border shadow-sm",
+-                      msg.role === 'user' 
+-                        ? "bg-[#0d1322] border-[#1f293d]" 
+-                        : "bg-indigo-500/10 border-indigo-500/20"
+-                    )}>
+-                      {msg.role === 'user' ? (
+-                        user?.photoURL ? <img src={user.photoURL} alt="" className="w-full h-full rounded-lg" /> : <div className="text-gray-400 text-xs">U</div>
+-                      ) : (
+-                        <SparklesIcon className="w-4 h-4 text-indigo-400" />
+-                      )}
+-                    </div>
++                    {msg.role === 'model' && (
++                      <div className="w-8 h-8 rounded-full flex shrink-0 items-center justify-center bg-[#131314] border border-[#444746]">
++                        <SparklesIcon className="w-4 h-4 text-[#a8c7fa]" />
++                      </div>
++                    )}
+ 
+                     {/* Bubble */}
+                     <div className={cn(
+-                      "px-5 py-3.5 rounded-2xl text-[15px] leading-relaxed max-w-[85%]",
+-                      msg.role === 'user'
+-                        ? "bg-[#111827] border border-[#1f293d] text-gray-100 rounded-tr-sm"
+-                        : "bg-transparent text-gray-300"
++                      "px-5 py-3 rounded-[24px] text-[15px] leading-relaxed",
++                      msg.role === 'user'
++                        ? "bg-[#1e1f20] text-[#e3e3e3]"
++                        : "bg-transparent text-[#e3e3e3] max-w-full"
+                     )}>
++                      {msg.images && msg.images.map((img, i) => (
++                        <img key={i} src={`data:${img.mimeType};base64,${img.base64}`} alt="Uploaded attachment" className="max-w-xs rounded-xl mb-3 border border-[#444746]" />
++                      ))}
++
+                       {msg.role === 'model' ? (
+-                        <div className="prose prose-invert prose-p:leading-relaxed prose-pre:bg-[#090d16] prose-pre:border prose-pre:border-[#1f293d] max-w-none">
++                        <div className="prose prose-invert prose-p:leading-relaxed prose-pre:bg-[#1e1f20] prose-pre:border prose-pre:border-[#444746] max-w-none text-[#e3e3e3] prose-headings:text-[#e3e3e3] prose-a:text-[#a8c7fa] prose-strong:text-[#e3e3e3] prose-code:text-[#a8c7fa]">
+                           <ReactMarkdown>{msg.text || "..."}</ReactMarkdown>
+@@ -796,12 +819,12 @@
+                             }}
+-                            className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-[#1f293d] bg-[#0d1322] shadow-sm border border-[#1f293d] flex items-center justify-center transition-colors"
++                            className="p-1.5 rounded-full text-[#c4c7c5] hover:text-[#e3e3e3] hover:bg-[#282a2c] flex items-center justify-center transition-colors"
+                             title="Copy message"
+                           >
+                             <Copy className="w-4 h-4" />
+                           </button>
+                           <button
+                             onClick={() => playAudio(msg.text, msg.id)}
+                             className={cn(
+-                              "p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-[#1f293d] bg-[#0d1322] shadow-sm border border-[#1f293d] flex items-center justify-center transition-colors",
+-                              speakingMessageId === msg.id && "text-indigo-400 border-indigo-500/30 bg-indigo-500/10"
++                              "p-1.5 rounded-full text-[#c4c7c5] hover:text-[#e3e3e3] hover:bg-[#282a2c] flex items-center justify-center transition-colors",
++                              speakingMessageId === msg.id && "text-[#a8c7fa] bg-[#a8c7fa]/10"
+                             )}
+@@ -829,6 +852,6 @@
+                   exit={{ opacity: 0, scale: 0.95 }}
+                   className="w-full md:w-72 shrink-0 space-y-4"
+                 >
+-                  <div className="bg-[#111827] border border-[#1f293d] rounded-2xl p-5 shadow-xl shadow-indigo-500/5 relative">
++                  <div className="bg-[#1e1f20] border border-transparent rounded-3xl p-5 relative">
+                     <button 
+@@ -835,6 +858,6 @@
+                       onClick={() => setHideInsights(true)}
+-                      className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"
++                      className="absolute top-4 right-4 text-[#c4c7c5] hover:text-[#e3e3e3] transition-colors"
+                     >
+                       <X className="w-4 h-4" />
+                     </button>
+-                    <div className="flex items-center gap-2 mb-4 text-indigo-400">
++                    <div className="flex items-center gap-2 mb-4 text-[#a8c7fa]">
+                       <Lightbulb className="w-5 h-5" />
+@@ -843,8 +866,8 @@
+                     <div className="space-y-4">
+                       <div>
+-                        <div className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold mb-1">Current Mood</div>
+-                        <div className="inline-flex items-center bg-[#0d1322] border border-[#1f293d] px-2.5 py-1 rounded-md text-sm text-gray-200">
++                        <div className="text-[11px] uppercase tracking-wider text-[#c4c7c5] font-semibold mb-1">Current Mood</div>
++                        <div className="inline-flex items-center bg-[#131314] px-3 py-1 rounded-full text-sm text-[#e3e3e3]">
+                           {sessionInsight.mood}
+                         </div>
+                       </div>
+ 
+                       <div>
+-                        <div className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold mb-2">Key Themes</div>
++                        <div className="text-[11px] uppercase tracking-wider text-[#c4c7c5] font-semibold mb-2">Key Themes</div>
+                         <div className="flex flex-wrap gap-2">
+                           {sessionInsight.keyThemes?.map((theme: string, i: number) => (
+-                            <span key={i} className="text-xs bg-indigo-500/10 text-indigo-300 px-2 py-1 rounded border border-indigo-500/20">
++                            <span key={i} className="text-xs bg-[#a8c7fa]/10 text-[#a8c7fa] px-3 py-1.5 rounded-full">
+                               {theme}
+                             </span>
+@@ -859,6 +882,6 @@
+                       <div>
+-                        <div className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold mb-1">Summary</div>
+-                        <p className="text-sm text-gray-400 leading-relaxed">
++                        <div className="text-[11px] uppercase tracking-wider text-[#c4c7c5] font-semibold mb-1">Summary</div>
++                        <p className="text-sm text-[#e3e3e3] leading-relaxed">
+                           {sessionInsight.summary}
+                         </p>
+@@ -869,6 +892,6 @@
+                         <div>
+-                          <div className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold mb-1">Action Items</div>
++                          <div className="text-[11px] uppercase tracking-wider text-[#c4c7c5] font-semibold mb-1">Action Items</div>
+                           <ul className="space-y-1">
+                             {sessionInsight.actionItems.map((item: string, i: number) => (
+-                              <li key={i} className="text-sm text-gray-300 flex gap-2">
+-                                <span className="text-indigo-400">•</span>
++                              <li key={i} className="text-sm text-[#e3e3e3] flex gap-2">
++                                <span className="text-[#a8c7fa]">•</span>
+                                 {item}
+                               </li>
+@@ -888,27 +911,54 @@
+ 
+         {/* Input Bar */}
+-        <div className="p-4 md:p-6 bg-gradient-to-t from-[#090d16] pt-10">
++        <div className="p-4 md:p-6 bg-[#131314]">
+           <div className="max-w-3xl mx-auto relative">
+-            <form onSubmit={handleSend} className="relative flex items-end bg-[#111827] border border-[#1f293d] rounded-2xl shadow-lg shadow-indigo-500/5 focus-within:border-indigo-500/50 focus-within:ring-1 focus-within:ring-indigo-500/50 transition-all">
++            {attachedImage && (
++              <div className="absolute bottom-full mb-3 left-4">
++                <div className="relative inline-block">
++                  <img src={attachedImage.url} alt="Attached" className="h-20 w-20 object-cover rounded-xl border border-[#444746]" />
++                  <button 
++                    type="button" 
++                    onClick={() => setAttachedImage(null)}
++                    className="absolute -top-2 -right-2 bg-[#282a2c] text-[#e3e3e3] rounded-full p-1 border border-[#444746] hover:bg-[#444746]"
++                  >
++                    <X className="w-3 h-3" />
++                  </button>
++                </div>
++              </div>
++            )}
++            <form onSubmit={handleSend} className="relative flex items-end bg-[#1e1f20] rounded-[32px] focus-within:bg-[#282a2c] transition-all overflow-hidden border border-transparent">
++              <label className="shrink-0 p-3 pb-3.5 pl-4 cursor-pointer text-[#c4c7c5] hover:text-[#e3e3e3] transition-colors rounded-full flex items-center justify-center">
++                <ImagePlus className="w-6 h-6" />
++                <input 
++                  type="file" 
++                  accept="image/*" 
++                  className="hidden" 
++                  onChange={(e) => {
++                    const file = e.target.files?.[0];
++                    if (!file) return;
++                    const reader = new FileReader();
++                    reader.onload = (event) => {
++                      const base64String = (event.target?.result as string).split(',')[1];
++                      setAttachedImage({ url: URL.createObjectURL(file), base64: base64String, mimeType: file.type });
++                    };
++                    reader.readAsDataURL(file);
++                  }} 
++                />
++              </label>
+               <textarea
+                 ref={textareaRef}
+                 value={input}
+                 onChange={(e) => {
+                   setInput(e.target.value);
+                   autoResize();
+                 }}
+                 onKeyDown={(e) => {
+                   if (e.key === 'Enter' && !e.shiftKey) {
+                     e.preventDefault();
+                     handleSend();
+                   }
+                 }}
+-                placeholder="What's on your mind?..."
+-                className="w-full max-h-[200px] bg-transparent border-none focus:ring-0 resize-none py-4 pl-5 pr-24 text-white placeholder-gray-500 text-[15px]"
++                placeholder="Ask Gemini"
++                className="w-full max-h-[200px] bg-transparent border-none focus:ring-0 resize-none py-4 pl-2 pr-28 text-[#e3e3e3] placeholder-[#c4c7c5] text-[16px]"
+                 rows={1}
+-                disabled={isGenerating}
+               />
+               <div className="absolute right-3 bottom-3 flex items-center gap-1.5">
+                 <button
+                   type="button"
+                   onClick={toggleListen}
+                   className={cn(
+-                    "p-2 rounded-xl transition-colors",
+-                    isListening ? "bg-red-500/20 text-red-400 hover:bg-red-500/30" : "text-gray-500 hover:text-white hover:bg-[#1f293d]"
++                    "p-2 rounded-full transition-colors",
++                    isListening ? "text-red-400 bg-red-400/10" : "text-[#c4c7c5] hover:text-[#e3e3e3] hover:bg-[#444746]"
+                   )}
+                   title="Dictate via microphone"
+                 >
+-                  {isListening ? <Mic className="w-4 h-4 animate-pulse" /> : <MicOff className="w-4 h-4" />}
++                  {isListening ? <Mic className="w-5 h-5 animate-pulse" /> : <Mic className="w-5 h-5" />}
+                 </button>
+-                <button
+-                  type="submit"
+-                  disabled={!input.trim() || isGenerating}
+-                  className="p-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-500 disabled:opacity-50 disabled:bg-[#1f293d] disabled:text-gray-500 transition-colors"
+-                >
+-                  {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+-                </button>
++                {isGenerating ? (
++                  <button
++                    type="button"
++                    onClick={stopGeneration}
++                    className="p-2 rounded-full text-[#e3e3e3] bg-[#444746] hover:bg-[#5f6368] transition-colors"
++                  >
++                    <StopCircle className="w-5 h-5" />
++                  </button>
++                ) : (
++                  <button
++                    type="submit"
++                    disabled={!input.trim() && !attachedImage}
++                    className="p-2 rounded-full text-[#131314] bg-[#e3e3e3] hover:bg-[#ffffff] disabled:opacity-30 transition-colors"
++                  >
++                    <Send className="w-5 h-5" />
++                  </button>
++                )}
+               </div>
+             </form>
