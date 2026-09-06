@@ -3,12 +3,12 @@ import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore';
 
 const firebaseConfig = {
-  projectId: "gen-lang-client-0502457613",
-  appId: "1:416781520917:web:a920d29564eb51d7847e1c",
-  apiKey: "AIzaSyAr_NWBJav97EDOhnOyCW7oFCv_GA39wJs",
-  authDomain: "gen-lang-client-0502457613.firebaseapp.com",
-  storageBucket: "gen-lang-client-0502457613.firebasestorage.app",
-  messagingSenderId: "416781520917",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
 };
 
 export const app = initializeApp(firebaseConfig);
