@@ -202,6 +202,9 @@ service cloud.firestore {
 }
 ```
 
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
 
 [React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
 [React-url]: https://reactjs.org/
