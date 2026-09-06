@@ -1,45 +1,69 @@
+<br/>
 <div align="center">
-  <h1>✨ Lumina</h1>
-  <p><strong>The Professional AI Workspace & Cognitive Synthesizer</strong></p>
-  
-  <p>
-    <img src="https://img.shields.io/badge/React-19.0-blue?style=for-the-badge&logo=react" alt="React" />
-    <img src="https://img.shields.io/badge/Vite-6.2-646CFF?style=for-the-badge&logo=vite" alt="Vite" />
-    <img src="https://img.shields.io/badge/Express-4.21-000000?style=for-the-badge&logo=express" alt="Express" />
-    <img src="https://img.shields.io/badge/Firebase-12.18-FFCA28?style=for-the-badge&logo=firebase" alt="Firebase" />
-    <img src="https://img.shields.io/badge/Gemini_API-3.5_Flash-4285F4?style=for-the-badge&logo=google" alt="Gemini API" />
-  </p>
+<a href="https://github.com/Anurag-tech22/lumina">
+<img src="https://raw.githubusercontent.com/tandpfun/skill-icons/main/icons/React-Dark.svg" alt="Logo" width="80" height="80">
+</a>
+<h3 align="center">Lumina</h3>
+<p align="center">
+A Professional AI Workspace & Cognitive Synthesizer
+<br/>
+<br/>
+<a href="https://github.com/Anurag-tech22/lumina"><strong>Explore the docs »</strong></a>
+<br/>
+<br/>
+<a href="https://github.com/Anurag-tech22/lumina">View Demo</a>
+·
+<a href="https://github.com/Anurag-tech22/lumina/issues">Report Bug</a>
+·
+<a href="https://github.com/Anurag-tech22/lumina/issues">Request Feature</a>
+</p>
 </div>
 
-<hr/>
+---
 
-Lumina is a premium, full-stack AI research and chat workspace designed for deep cognitive synthesis. It features a sophisticated, responsive interface built with React and Tailwind CSS, backed by a secure Node.js/Express server integrating the latest Google Gemini models.
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li><a href="#about-the-project">About The Project</a></li>
+    <li><a href="#key-features">Key Features</a></li>
+    <li><a href="#built-with">Built With</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#getting-started">Getting Started</a></li>
+    <li><a href="#deployment">Deployment</a></li>
+    <li><a href="#security">Security</a></li>
+    <li><a href="#license">License</a></li>
+  </ol>
+</details>
 
-## 🌟 Key Features
+## 🌌 About The Project
 
-- **Omni-Cognitive Synthesis**: Seamless integration with Gemini 3.5 Flash for both standard chat and deep research modes.
-- **Secure Data Persistence**: Real-time synchronization of chat sessions and histories using Firebase Firestore.
-- **Zero-Trust Backend**: Server-side proxying of all AI requests with strict JWT bearer token validation. API keys are never exposed to the client.
-- **Top-Tier Aesthetics**: A beautifully crafted, distraction-free dark mode UI featuring Framer Motion transitions and fluid typography.
+Lumina is a premium, full-stack AI research and chat workspace designed for deep cognitive synthesis. It provides a sophisticated, responsive interface built with React and Tailwind CSS, backed by a secure Node.js/Express server that integrates the latest Google Gemini models. 
 
-## 🛠️ Tech Stack
+Unlike basic chat interfaces, Lumina offers **Omni-Cognitive Synthesis** and deep research capabilities, serving as a dedicated, fully-isolated personal vault for your thoughts and ideas.
 
-### Frontend
-- **React 19**: Modern component-based architecture.
-- **Vite 6**: Blazing fast build tool and dev server.
-- **Tailwind CSS 4**: Utility-first styling for premium design.
-- **Framer Motion**: Fluid, physics-based micro-animations.
+## ✨ Key Features
 
-### Backend & Cloud
-- **Node.js & Express**: Secure, high-performance API server.
-- **Google Gemini SDK**: Core AI engine powering the workspace.
-- **Firebase Firestore**: Scalable NoSQL database with real-time listeners.
-- **Firebase Auth**: Secure, passwordless and OAuth identity management.
-- **Google Cloud Run**: Serverless deployment for auto-scaling.
+* 🧠 **Omni-Cognitive Synthesis:** Seamless integration with Gemini 3.5 Flash for advanced chat and deep research.
+* 🔒 **Secure Data Persistence:** Real-time synchronization of chat sessions using Firebase Firestore.
+* 🛡️ **Zero-Trust Backend:** Server-side proxying of all AI requests with strict JWT bearer token validation. Your API keys are never exposed to the client.
+* 🎨 **Top-Tier Aesthetics:** A beautifully crafted, distraction-free dark mode UI featuring fluid typography and `framer-motion` micro-animations.
 
-## 📐 System Architecture
+## 💻 Built With
 
-### Component Architecture
+Lumina is built using modern web technologies to ensure a scalable, fast, and delightful user experience.
+
+* [![React][React.js]][React-url]
+* [![Vite][Vite.js]][Vite-url]
+* [![Tailwind][Tailwind.css]][Tailwind-url]
+* [![Express][Express.js]][Express-url]
+* [![Firebase][Firebase.js]][Firebase-url]
+
+## 📐 Architecture
+
+Lumina utilizes a robust client-server architecture with server-side AI processing to maximize security.
+
+### Component Flow
+
 ```mermaid
 graph TD
     subgraph Client [Client-Side Application]
@@ -77,7 +101,8 @@ graph TD
     style GoogleCloud fill:#1e293b,stroke:#f59e0b,color:#fff
 ```
 
-### AI Message Processing Flow
+### AI Message Processing
+
 ```mermaid
 sequenceDiagram
     participant U as User
@@ -97,64 +122,30 @@ sequenceDiagram
     C-->>U: Update UI with AI Response
 ```
 
-## 📈 Building Phase & Project Lifecycle
+## 🚀 Getting Started
 
-```mermaid
-gantt
-    title Lumina Development Phase
-    dateFormat  YYYY-MM-DD
-    section Foundation
-    Architecture Design     :done,    des1, 2026-08-01, 3d
-    Tech Stack Selection    :done,    des2, after des1, 2d
-    section Frontend
-    UI/UX Prototyping       :done,    ui1, 2026-08-06, 4d
-    React Components & Tailwind :done, ui2, after ui1, 5d
-    Framer Motion Integrations :done, ui3, after ui2, 2d
-    section Backend & AI
-    Express Server Setup    :done,    be1, 2026-08-15, 3d
-    Firebase Auth Integration :done,  be2, after be1, 3d
-    Gemini API Proxy        :done,    be3, after be2, 4d
-    section Deployment
-    Cloud Run Config        :done,    dep1, 2026-08-25, 2d
-    CI/CD Pipelines         :done,    dep2, after dep1, 2d
-```
+To get a local copy up and running, follow these simple steps.
 
-## 🔐 Security & Database Configuration
+### Prerequisites
 
-Lumina implements strict **User Data Isolation**. Users can only read and write their own data.
+* Node.js (v18 or higher)
+* npm
+  ```sh
+  npm install npm@latest -g
+  ```
 
-### 1. Firestore Security Rules
+### Installation
 
-Navigate to the Firebase Console and deploy the following `firestore.rules`:
-
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // User profile and settings isolation
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      
-      // Nested chat sessions isolation
-      match /sessions/{sessionId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
-      }
-    }
-  }
-}
-```
-
-## 💻 Local Development
-
-To run the application locally:
-
-1. Clone the repository and install dependencies:
-   ```bash
+1. Clone the repo
+   ```sh
    git clone https://github.com/Anurag-tech22/lumina.git
+   ```
+2. Install NPM packages
+   ```sh
    cd lumina
    npm install
    ```
-2. Create a `.env` file in the root directory:
+3. Create a `.env` file in the root directory and add your keys:
    ```env
    VITE_FIREBASE_API_KEY="your_api_key"
    VITE_FIREBASE_AUTH_DOMAIN="your_domain"
@@ -164,45 +155,61 @@ To run the application locally:
    VITE_FIREBASE_APP_ID="your_app_id"
    GEMINI_API_KEY="your_gemini_api_key_for_local_dev"
    ```
-3. Start the unified development server:
-   ```bash
+4. Start the development server
+   ```sh
    npm run dev
    ```
 
-## ☁️ Deployment Guide (Google Cloud Run)
+## ☁️ Deployment
 
-Follow these steps to configure, secure, and deploy Lumina to Google Cloud Run.
+Lumina is designed to be easily deployed to Google Cloud Run. 
 
-### 1. Secret Management Setup
-Never hardcode your Gemini API key. Use Google Cloud Secret Manager to inject it securely at runtime.
+1. **Secret Management Setup:** Never hardcode your API keys.
+   ```sh
+   gcloud secrets create GEMINI_API_KEY --replication-policy="automatic"
+   echo -n "YOUR_GEMINI_API_KEY" | gcloud secrets versions add GEMINI_API_KEY --data-file=-
+   
+   # Grant access
+   gcloud secrets add-iam-policy-binding GEMINI_API_KEY \
+     --member="serviceAccount:YOUR_PROJECT_NUMBER-compute@developer.gserviceaccount.com" \
+     --role="roles/secretmanager.secretAccessor"
+   ```
 
-```bash
-# Create the secret in Secret Manager
-gcloud secrets create GEMINI_API_KEY --replication-policy="automatic"
+2. **Deploy to Cloud Run:**
+   ```sh
+   gcloud run deploy lumina-workspace \
+     --source . \
+     --region=us-central1 \
+     --allow-unauthenticated \
+     --update-secrets=GEMINI_API_KEY=GEMINI_API_KEY:latest
+   ```
 
-# Populate the secret with your actual API key
-echo -n "YOUR_GEMINI_API_KEY" | gcloud secrets versions add GEMINI_API_KEY --data-file=-
+## 🛡️ Security
 
-# Grant the default Cloud Run service account access to read the secret
-gcloud secrets add-iam-policy-binding GEMINI_API_KEY \
-  --member="serviceAccount:YOUR_PROJECT_NUMBER-compute@developer.gserviceaccount.com" \
-  --role="roles/secretmanager.secretAccessor"
+Lumina implements strict **User Data Isolation**. Users can only read and write their own data. Navigate to the Firebase Console and deploy the following `firestore.rules`:
+
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      match /sessions/{sessionId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+  }
+}
 ```
 
-### 2. Deploy to Cloud Run
 
-Run the following command to deploy the unified Express + Vite application.
-
-```bash
-gcloud run deploy lumina-workspace \
-  --source . \
-  --region=us-central1 \
-  --allow-unauthenticated \
-  --update-secrets=GEMINI_API_KEY=GEMINI_API_KEY:latest \
-  --update-labels=dev-tutorial=cloud-run-ai-challenge
-```
-
----
-<div align="center">
-  <i>Architected for speed, security, and cognitive scale.</i>
-</div>
+[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
+[React-url]: https://reactjs.org/
+[Vite.js]: https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white
+[Vite-url]: https://vitejs.dev/
+[Tailwind.css]: https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white
+[Tailwind-url]: https://tailwindcss.com/
+[Express.js]: https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white
+[Express-url]: https://expressjs.com/
+[Firebase.js]: https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black
+[Firebase-url]: https://firebase.google.com/
